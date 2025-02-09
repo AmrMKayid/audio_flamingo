@@ -1,0 +1,483 @@
+train_config:
+  expdir: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/v1.0_optimlmax1.3b_foundation
+  run_name: run_demo_sft_fp32_xattnevery1_msclapcap_win7_ovlp5.25_ICL4x16win-4node
+  delete_previous_checkpoint: true 
+  batch_size: 4
+  gradient_accumulation_steps: 1
+  seed: 42
+  learning_rate: 0.00002
+  lr_scheduler: constant
+  loss_multiplier: 1.0
+  warmup_steps: 1875
+  weight_decay: 0.1
+  precision: fp32  # ["amp_bf16", "amp_bfloat16", "bf16", "fp16", "fp32"]
+  gradient_checkpointing: False 
+  num_epochs: 160  # num_epochs * dataset_blending_global_weight = 1
+  offline: false
+  freeze_lm_embeddings: false
+  logging_steps: 10
+  dist_backend: nccl
+  dist_url: env:// # tcp://localhost:7000
+  no_set_device_rank: false 
+  fsdp: true 
+  fsdp_use_orig_params: false  # Passed into the FSDP constructor. Enables param_groups and gradient masking for weight_decay. Does not work with OPT.
+  fsdp_sharding_strategy: full  # full, hybrid
+  horovod: false
+
+# instruction tuning hparams
+sft_config:
+  pretrained_path: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/v1.0_optimlmax1.3b_foundation/run_demo_pretraining_bf16_xattnevery1_msclapcap_win7_ovlp5.25_ICL4x16win-4node/
+  pretrained_ckpt: checkpoint_99.pt
+  unfreeze_full_lm: true
+
+data_config:
+  dataset_blending_global_weight: 0.01
+
+  dataset_blending_config:
+
+    # Audio QA
+    Clotho-AQA-AQA/train:
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AQA_binary_instruction: 1.0
+    Clotho-AQA-AQA/interleaved_knn-train:
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AQA_binary_instruction: 1.0
+
+    OpenAQA-AQA/train:
+      weight: 1.0
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+
+    # Audio Captioning 
+
+    Clotho-v2-AudioCaptioning/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+    Clotho-v2-AudioCaptioning/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+
+    audiocaps-AudioCaptioning/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+    audiocaps-AudioCaptioning/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+
+    Epidemic_sound-AudioCaptioning/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+    Epidemic_sound-AudioCaptioning/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+
+    MACS-AudioCaptioning/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+    MACS-AudioCaptioning/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_short: 1.0
+
+    # Audio Classification
+
+    FSD50k-EventClassification/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        default: 1.0
+    FSD50k-EventClassification/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        default: 1.0
+
+    CochlScene-SceneClassification/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    CochlScene-SceneClassification/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    NonSpeech7k-EventClassification/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    NonSpeech7k-EventClassification/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    chime-home-EventClassification/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        default: 0.5
+        num_words: 0.5
+    chime-home-EventClassification/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        default: 0.5
+        num_words: 0.5
+
+    SONYC-UST-EventClassification/train: 
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        default: 0.5
+        num_words: 0.5
+    SONYC-UST-EventClassification/interleaved_knn-train: 
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        default: 0.5
+        num_words: 0.5
+
+    # Speech Emotion Classification
+
+    MELD-EmotionClassification/train: 
+      weight: 0.5
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    MELD-SentimentClassification/train:
+      weight: 0.5
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.1
+        default: 0.9
+
+    emov-db-EmotionClassification/train:
+      weight: 1.6
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    emov-db-EmotionClassification/interleaved_knn-train:
+      weight: 0.4
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    jl-corpus-EmotionClassification/train:
+      weight: 6.0
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    jl-corpus-EmotionClassification/interleaved_knn-train:
+      weight: 1.5
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    tess-EmotionClassification/train:
+      weight: 2.0
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    tess-EmotionClassification/interleaved_knn-train:
+      weight: 0.5
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    IEMOCAP-EmotionClassification/train:
+      weight: 2.4
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    IEMOCAP-EmotionClassification/interleaved_knn-train:
+      weight: 0.6
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    OMGEmotion-EmotionClassification/train:
+      weight: 3.0
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    VocalSound-VocalClassification/train:
+      weight: 1.0
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+
+    # Music QA
+    
+    Music-AVQA-AQA_All/train:
+      weight: 2.0
+      prefix_prob: 1.0
+      augmentations:
+        AQA_binary_instruction: 1.0
+    Music-AVQA-AQA_All/interleaved_knn-train:
+      weight: 1.0
+      prefix_prob: 1.0
+      augmentations:
+        AQA_binary_instruction: 1.0
+
+    MU-LLAMA-AQA/train:
+      weight: 0.9
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+    MU-LLAMA-AQA/interleaved_knn-train:
+      weight: 0.1
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+
+    # Music Captioning
+
+    LP-MusicCaps-MSD-AudioCaptioning/train:
+      weight: 0.05  # 1.3M
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+    LP-MusicCaps-MSD-AudioCaptioning/interleaved_knn-train:
+      weight: 0.05  # 111k
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+    
+    LP-MusicCaps-MC-AudioCaptioning/train:
+      weight: 1.6
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+    LP-MusicCaps-MC-AudioCaptioning/interleaved_knn-train:
+      weight: 0.4
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+
+    LP-MusicCaps-MTT-AudioCaptioning/train:
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_long: 1.0
+    LP-MusicCaps-MTT-AudioCaptioning/interleaved_knn-train:
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_long: 1.0
+
+    MusicCaps-AudioCaptioning/train:
+      weight: 6.0
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+    MusicCaps-AudioCaptioning/interleaved_knn-train:
+      weight: 1.5
+      prefix_prob: 1.0
+      augmentations:
+        AC_paragraph: 1.0
+
+    SongDescriber-AudioCaptioning/train:
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        AC_long: 1.0
+    SongDescriber-AudioCaptioning/interleaved_knn-train:
+      weight: 0.2
+      prefix_prob: 1.0
+      augmentations:
+        AC_long: 1.0
+
+    # Music Understanding 
+
+    NSynth-MIR/train:
+      weight: 0.2  # 289k for weight = 1
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+    NSynth-MIR/interleaved_knn-train:
+      weight: 0.2  # 60k for weight = 1
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+
+    mtg-jamendo-MusicTagging/train:
+      weight: 0.1
+      prefix_prob: 1.0
+      augmentations:
+        default: 1.0
+    
+    FMA-GenreClassification/train:
+      weight: 0.4  # 104k for weight = 1
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+    FMA-GenreClassification/interleaved_knn-train:
+      weight: 0.3  # 46k for weight = 1
+      prefix_prob: 1.0
+      augmentations:
+        do_nothing: 1.0
+
+    musdbhq-InstrClassification/train:
+      weight: 0.8
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 0.5
+        default: 0.5
+    
+  dataset_file_root: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/dataset_files
+  data_root: /lustre/fsw/portfolios/adlr/users/zkong/datasets
+  dataset_blending_output: dataset_blending.json
+  max_tokens: 512
+  num_workers: 4
+
+  valid_dataset_config: 
+  
+    Clotho-AQA-AQA/test: true
+    Clotho-AQA-AQA/interleaved_knn-test: true
+
+    Clotho-v2-AudioCaptioning/test: true
+    Clotho-v2-AudioCaptioning/interleaved_knn-test: true
+
+    FSD50k-EventClassification/test: true
+    FSD50k-EventClassification/interleaved_knn-test: true
+
+    CochlScene-SceneClassification/test: true
+    CochlScene-SceneClassification/interleaved_knn-test: true
+
+    NonSpeech7k-EventClassification/test: true
+    NonSpeech7k-EventClassification/interleaved_knn-test: true
+
+    SONYC-UST-EventClassification/test: true
+    SONYC-UST-EventClassification/interleaved_knn-test: true
+
+    emov-db-EmotionClassification/val: true
+    emov-db-EmotionClassification/interleaved_knn-val: true
+
+    jl-corpus-EmotionClassification/val: true
+    jl-corpus-EmotionClassification/interleaved_knn-val: true
+
+    tess-EmotionClassification/val: true
+    tess-EmotionClassification/interleaved_knn-val: true
+
+    IEMOCAP-EmotionClassification/test: true
+    IEMOCAP-EmotionClassification/interleaved_knn-test: true
+
+    OMGEmotion-EmotionClassification/val: true
+
+    Music-AVQA-AQA_All/test: true
+    Music-AVQA-AQA_All/interleaved_knn-test: true
+
+    MU-LLAMA-AQA/test: true
+    
+    LP-MusicCaps-MSD-AudioCaptioning/test: true
+    LP-MusicCaps-MC-AudioCaptioning/test: true
+    LP-MusicCaps-MTT-AudioCaptioning/test: true
+    LP-MusicCaps-MTT-AudioCaptioning/interleaved_knn-test: true
+    
+    NSynth-MIR/test: true
+    NSynth-MIR/interleaved_knn-test: true
+
+    mtg-jamendo-MusicTagging/val: true
+
+    audiocaps-AudioCaptioning/test: true
+    audiocaps-AudioCaptioning/interleaved_knn-test: true
+
+    MusicCaps-AudioCaptioning/test: true
+
+    MELD-EmotionClassification/test: true
+    MELD-SentimentClassification/test: true
+    VocalSound-VocalClassification/test: true
+    musdbhq-InstrClassification/test: true
+    
+    # zero shot
+
+    GTZAN-GenreClassification/train:
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 1.0
+    GTZAN-GenreClassification/interleaved_knn-train:
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 1.0
+
+    Medley-solos-DB-InstrClassification/test: 
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 1.0
+    Medley-solos-DB-InstrClassification/interleaved_knn-test: 
+      prefix_prob: 1.0
+      augmentations:
+        provide_all_labels: 1.0
+
+clap_config:
+  # method: laion-clap
+  # audio_embed_dim: 512
+  # model_name: 630k-fusion-best
+  # checkpoint: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/laion-clap-pretrained/laion_clap/630k-fusion-best.pt
+  
+  method: microsoft-clap
+  audio_embed_dim: 1024
+  config_root: /home/zkong/audio_flamingo/audio_flamingo_v1/v1.0_optimlmax1.3b_foundation/my_ms_clap/src/configs
+  # model_name: '2023'
+  # checkpoint: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/clap/CLAP_weights_2023.pth
+  model_name: 'clapcap'
+  checkpoint: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/clap/clapcap_weights_2023.pth
+
+  window_length: 7.0  # seconds
+  window_overlap: 5.25  # seconds
+  max_num_window: 16  # 35 seconds
+  max_num_fewshot: 4  # number of fewshot samples (including the final one)
+
+model_config:
+  cache_dir: /lustre/fsw/portfolios/adlr/users/zkong/audio-flamingo-data/LLM_pretrained/.cache
+
+  lang_encoder_path: facebook/opt-iml-max-1.3b
+  tokenizer_path: facebook/opt-iml-max-1.3b
+  cross_attn_every_n_layers: 1
+  audio_transformer_kwargs: {
+    n_head: 8,
+    n_layers: 3,
+    d_inner: 2048,
+    max_num_media: 128,  # must be >= max_num_window * num_fewshot_samples (4)
+    max_window_per_audio: 16,  # must = max_num_window
+  }

@@ -1,0 +1,284 @@
+train_config:
+  expdir: /lustre/fsw/portfolios/adlr/users/sreyang/flamingo_v2/af2_exp_qwen3b_rotary_all_layers-7b-fixed-sft
+  run_name: run_demo_pretraining_bf16_xattnevery1_msclapcap_win7_ovlp5.25_single16win-4node-qwen3b-rotary-3b-fixed-sft-3
+  delete_previous_checkpoint: true 
+  batch_size: 8
+  gradient_accumulation_steps: 2
+  seed: 42
+  learning_rate: 0.00002
+  lr_scheduler: constant
+  loss_multiplier: 1.0
+  warmup_steps: 1875
+  weight_decay: 0.1
+  precision: amp_bf16  # ["amp_bf16", "amp_bfloat16", "bf16", "fp16", "fp32"]
+  gradient_checkpointing: False 
+  num_epochs: 200  # num_epochs * dataset_blending_global_weight = 1
+  offline: false
+  freeze_lm_embeddings: false
+  logging_steps: 10
+  dist_backend: nccl
+  dist_url: env:// # tcp://localhost:7000
+  no_set_device_rank: false 
+  fsdp: true 
+  fsdp_use_orig_params: false  # Passed into the FSDP constructor. Enables param_groups and gradient masking for weight_decay. Does not work with OPT.
+  fsdp_sharding_strategy: full  # full, hybrid
+  horovod: false
+
+# instruction tuning hparams
+# sft_config:
+#   pretrained_path: /lustre/fsw/portfolios/adlr/users/sreyang/flamingo_v2/af2_exp_qwen3b_rotary_all_layers-7b-fixed/run_demo_pretraining_bf16_xattnevery1_msclapcap_win7_ovlp5.25_single16win-4node-qwen3b-rotary-3b-fixed_ckpt_stage1/
+#   pretrained_ckpt: checkpoint_199.pt
+#   unfreeze_full_lm: false
+
+data_config:
+  dataset_blending_global_weight: 0.005
+
+  dataset_blending_config:
+
+    MMAUQA/train:
+      weight: 1.5
+
+    AudioSet-Temporal-Speech-Audio-QA/train:
+      weight: 1.0
+
+    CompA-R-AQA/train:
+      weight: 1.0
+
+    # Audio QA
+    Clotho-AQA-AQA/train:
+      weight: 1.0
+    
+    OpenAQA-AQA/train:
+      weight: 1.0
+
+    SalmonnQA/train:
+      weight: 1.0
+
+    AudioEntailmentQA/train:
+      weight: 1.0
+
+    # Audio Captioning 
+
+    Clotho-v2-AudioCaptioning/train: 
+      weight: 1.0
+
+    audiocaps-AudioCaptioning/train: 
+      weight: 1.0
+
+    Epidemic_sound-AudioCaptioning/train: 
+      weight: 1.0
+
+    MACS-AudioCaptioning/train: 
+      weight: 1.0
+
+    # Audio Classification
+
+    FSD50k-EventClassification/train: 
+      weight: 1.0
+
+    CochlScene-SceneClassification/train: 
+      weight: 1.0
+
+    NonSpeech7k-EventClassification/train: 
+      weight: 1.0
+
+    chime-home-EventClassification/train: 
+      weight: 1.0
+
+    SONYC-UST-EventClassification/train: 
+      weight: 1.0
+
+    # Speech Emotion Classification
+
+    MELD-EmotionClassification/train: 
+      weight: 0.5
+
+    MELD-SentimentClassification/train:
+      weight: 0.5
+
+    emov-db-EmotionClassification/train:
+      weight: 1.0
+
+    jl-corpus-EmotionClassification/train:
+      weight: 6.0
+
+    tess-EmotionClassification/train:
+      weight: 2.5
+
+    IEMOCAP-EmotionClassification/train:
+      weight: 3.0
+
+    OMGEmotion-EmotionClassification/train:
+      weight: 3.0
+
+    VocalSound-VocalClassification/train:
+      weight: 1.5
+
+    # Music QA
+    
+    Music-AVQA-AQA_All/train:
+      weight: 3.0
+    
+    MU-LLAMA-AQA/train:
+      weight: 1.0
+
+    # Music Captioning
+
+    LP-MusicCaps-MSD-AudioCaptioning/train:
+      weight: 0.06
+    
+    LP-MusicCaps-MC-AudioCaptioning/train:
+      weight: 2.0
+
+    LP-MusicCaps-MTT-AudioCaptioning/train:
+      weight: 1.0
+
+    MusicCaps-AudioCaptioning/train:
+      weight: 6.0
+
+    musdbhq-captioning/train:
+      weight: 2.0
+
+    # Music Understanding 
+
+    NSynth-MIR/train:
+      weight: 0.2
+
+    mtg-jamendo-MusicTagging/train:
+      weight: 0.1
+    
+    FMA-GenreClassification/train:
+      weight: 0.5
+    
+    musdbhq-InstrClassification/train:
+      weight: 0.8
+
+    LLARK_FMA-mir/train:
+      weight: 1.0
+
+    LLARK_FMA-reasoning/train:
+      weight: 1.0
+    
+    LLARK_MagnaTagATune-mir/train:
+      weight: 1.0
+
+    LLARK_MTG-Jamendo-reasoning/train:
+      weight: 1.0
+
+    LLARK_MagnaTagATune-reasoning/train:
+      weight: 1.0
+
+    LLARK_MTG-Jamendo-mir/train:
+      weight: 1.0
+
+    MusicBenchQA/train:
+      weight: 1.0
+
+  dataset_file_root: /lustre/fsw/portfolios/adlr/users/sreyang/final_qa/foundational_data
+  data_root: /lustre/fsw/portfolios/adlr/users/zkong/datasets
+  dataset_blending_output: /lustre/fsw/portfolios/adlr/users/sreyang/flamingo_v2/af2_exp_qwen3b_rotary_all_layers-7b-fixed/dataset_blending.json
+  max_tokens: 512
+  num_workers: 4
+
+  valid_dataset_config: 
+  
+    Clotho-AQA-AQA/test: true
+
+    Clotho-v2-AudioCaptioning/test: true
+    audiocaps-AudioCaptioning/test: true
+
+    FSD50k-EventClassification/test: true
+    CochlScene-SceneClassification/test: true
+    NonSpeech7k-EventClassification/test: true
+    SONYC-UST-EventClassification/test: true
+
+    MELD-EmotionClassification/test: true
+    MELD-SentimentClassification/test: true
+    emov-db-EmotionClassification/val: true
+    jl-corpus-EmotionClassification/val: true
+    tess-EmotionClassification/val: true
+    IEMOCAP-EmotionClassification/val: true
+    OMGEmotion-EmotionClassification/val: true
+    VocalSound-VocalClassification/test: true
+    
+    Music-AVQA-AQA_All/test: true
+    MU-LLAMA-AQA/test: true
+    
+    LP-MusicCaps-MSD-AudioCaptioning/test: true
+    LP-MusicCaps-MC-AudioCaptioning/test: true
+    LP-MusicCaps-MTT-AudioCaptioning/test: true
+    MusicCaps-AudioCaptioning/test: true
+    
+    NSynth-MIR/test: true
+    mtg-jamendo-MusicTagging/val: true
+    musdbhq-InstrClassification/test: true
+
+    # # zero shot
+    # CREMA-D-EmotionClassification/train:
+    #   prefix_prob: 1.0
+
+    # ravdess-EmotionClassification/train:
+    #   prefix_prob: 1.0
+
+    # UrbanSound8K-EventClassification/train: 
+    #   prefix_prob: 1.0
+
+    # ESC50-EventClassification/train:
+    #   prefix_prob: 1.0
+    
+    # DCASE17Task4-SceneClassification/test:
+    #   prefix_prob: 1.0
+
+    # GTZAN-GenreClassification/train:
+    #   prefix_prob: 1.0
+
+    # Medley-solos-DB-InstrClassification/test: 
+    #   prefix_prob: 1.0
+
+clap_config:  
+  method: nvclap-large
+  audio_embed_dim: 2048
+  checkpoint: clap_ckpt/epoch_15.pt
+
+  window_length: 10.0  # seconds
+  window_overlap: 0.0  # seconds
+  max_num_window: 9  # 1.5 minutes
+  max_num_fewshot: 1  # number of fewshot samples (including the final one)
+  finetune: true
+
+whisper_config:  
+  method: whisper-large-v3
+  path: openai/whisper-large-v3
+  audio_embed_dim: 1280
+  sampling_rate: 16000
+
+  window_length: 30.0  # seconds
+  window_overlap: 0.0  # seconds
+  max_num_window: 1  # 5 minutes
+  max_num_fewshot: 1  # number of fewshot samples (including the final one)
+
+mert_config:  
+  method: mert-v1
+  path: m-a-p/MERT-v1-330M
+  audio_embed_dim: 1024
+  sampling_rate: 24000
+
+  window_length: 10.0  # seconds
+  window_overlap: 0.0  # seconds
+  max_num_window: 1  # 5 minutes
+  max_num_fewshot: 1  # number of fewshot samples (including the final one)
+
+model_config:
+  cache_dir: /lustre/fsw/portfolios/adlr/users/sreyang/.cache
+
+  lang_encoder_path: Qwen/Qwen2.5-3B
+  tokenizer_path: Qwen/Qwen2.5-3B
+  cross_attn_every_n_layers: 1
+  audio_transformer_kwargs: {
+    n_head: 8,
+    n_layers: 3,
+    d_inner: 2048,
+    max_num_media: 128,  # must be >= max_num_window * num_fewshot_samples (4)
+    max_window_per_audio: 1,  # must = max_num_window
+    common_encoder_embed_dim: 1024
+  }
