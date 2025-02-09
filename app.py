@@ -26,7 +26,9 @@ def float32_to_int16(x):
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-snapshot_download(repo_id="SreyanG-NVIDIA/audio-flamingo-2", local_dir="./")
+api_key = os.getenv("my_secret")
+
+snapshot_download(repo_id="SreyanG-NVIDIA/audio-flamingo-2", local_dir="./", token=api_key)
 
 config = yaml.load(open("configs/inference.yaml"), Loader=yaml.FullLoader)
 
