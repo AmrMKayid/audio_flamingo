@@ -269,7 +269,7 @@ mert_config:
   max_num_fewshot: 1  # number of fewshot samples (including the final one)
 
 model_config:
-  cache_dir: /lustre/fsw/portfolios/adlr/users/sreyang/.cache
+  cache_dir: .cache
 
   lang_encoder_path: Qwen/Qwen2.5-3B
   tokenizer_path: Qwen/Qwen2.5-3B

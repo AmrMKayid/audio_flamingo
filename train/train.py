@@ -5,8 +5,6 @@ import functools
 import glob
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
-os.environ['TRANSFORMERS_CACHE'] = '/lustre/fsw/portfolios/adlr/users/sreyang/.cache'
-os.environ['HF_HOME'] = '/lustre/fsw/portfolios/adlr/users/sreyang/.cache'
 import random
 import shutil
 import sys 
@@ -53,9 +51,6 @@ from train_utils import (
 )
 from valid_utils import validation_losses
 from src.factory import create_model_and_transforms
-
-os.environ['TRANSFORMERS_CACHE'] = '/lustre/fsw/portfolios/adlr/users/sreyang/.cache'
-os.environ['HF_HOME'] = '/lustre/fsw/portfolios/adlr/users/sreyang/.cache'
 
 def random_seed(seed=42, rank=0):
     torch.manual_seed(seed + rank)
