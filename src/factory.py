@@ -7,7 +7,6 @@ from copy import deepcopy
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel, Wav2Vec2FeatureExtractor, WhisperFeatureExtractor, WhisperModel
 # from .modeling_whisper import WhisperModel
 from my_laion_clap.CLAP.src.laion_clap.clap_module.htsat import create_htsat_model
-from my_ms_clap.src.CLAPWrapper import CLAPWrapper
 
 import torch
 import torchaudio
