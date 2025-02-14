@@ -213,7 +213,7 @@ def predict(filepath, question):
             lang_x=prompt,
             eos_token_id=tokenizer.eos_token_id,
             max_new_tokens=256,
-            temperature=0.7)[0]
+            temperature=0.0)[0]
     
     output_decoded = tokenizer.decode(output).split(tokenizer.sep_token)[-1].replace(tokenizer.eos_token, '').replace(tokenizer.pad_token, '').replace('<|endofchunk|>', '')
 
