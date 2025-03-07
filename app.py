@@ -239,7 +239,6 @@ def predict(filepath, question):
     return output_decoded
 
 audio_examples = [
-    ["./examples/emergent1.wav", "What is unusual about the audio?"],
     ["./examples/soundcap1.wav", "What is the soundscape in this audio?"],
     ["./examples/muscicap1.wav", "Summarize the music content in a sentence."],
     ["./examples/mmau1.wav", "What specific sounds can be distinguished from the audio clip? (A) Helicopter and impact sounds  (B) Whistling and chatter (C) Car honking and raindrops (D) Birds chirping and water flowing"],
