@@ -17,6 +17,25 @@ from data.data import get_audiotext_dataloader
 from src.factory import create_model_and_transforms
 from train.train_utils import Dict2Class, get_autocast, get_cast_dtype
 
+HEADER = ("""
+<div style="display: flex; justify-content: center; align-items: center; text-align: center;">
+  <a href="https://github.com/NVIDIA/audio-flamingo" style="margin-right: 20px; text-decoration: none; display: flex; align-items: center;">
+    <img src="https://github.com/NVIDIA/audio-flamingo/blob/main/assets/af_logo.png?raw=true" alt="Audio Flamingo 2 🔥🚀🔥" style="max-width: 120px; height: auto;">
+  </a>
+  <div>
+    <h1>Audio Flamingo 2: An Audio-Language Model with Long-Audio Understanding and Expert Reasoning Abilities</h1>
+    <h5 style="margin: 0;">If this demo please you, please give us a star ⭐ on Github or 💖 on this space.</h5>
+  </div>
+</div>
+
+<div style="display: flex; justify-content: center; margin-top: 10px;">
+  <a href="https://github.com/NVIDIA/audio-flamingo"><img src='https://img.shields.io/badge/Github-AudioFlamingo2-9C276A' style="margin-right: 5px;"></a>
+  <a href="https://arxiv.org/abs/2503.03983"><img src="https://img.shields.io/badge/Arxiv-2503.03983-AD1C18" style="margin-right: 5px;"></a>
+  <a href="https://huggingface.co/nvidia/audio-flamingo-2"><img src="https://img.shields.io/badge/🤗-Checkpoints-ED5A22.svg" style="margin-right: 5px;"></a>
+  <a href="https://github.com/NVIDIA/audio-flamingo/stargazers"><img src="https://img.shields.io/github/stars/NVIDIA/audio-flamingo.svg?style=social"></a>
+</div>
+""")
+
 def int16_to_float32(x):
     return (x / 32767.0).astype(np.float32)
 
@@ -28,7 +47,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 api_key = os.getenv("my_secret")
 
-snapshot_download(repo_id="SreyanG-NVIDIA/audio-flamingo-2", local_dir="./", token=api_key)
+snapshot_download(repo_id="nvidia/audio-flamingo-2", local_dir="./", token=api_key)
 
 config = yaml.load(open("configs/inference.yaml"), Loader=yaml.FullLoader)
 
@@ -219,16 +238,24 @@ def predict(filepath, question):
 
     return output_decoded
 
-link = "TBD"
-text = "[Github]"
-paper_link = "https://github.com/NVIDIA/audio-flamingo/"
-paper_text = "TBD"
-demo = gr.Interface(fn=predict,
-                    inputs=[gr.Audio(type="filepath"), gr.Textbox(value='Describe the audio.', label='Edit the textbox to ask your own questions!')],
+audio_examples = [
+    ["./examples/emergent1.wav", "What is unusual about the audio?"],
+    ["./examples/soundcap1.wav", "What is the soundscape in this audio?"],
+    ["./examples/muscicap1.wav", "Summarize the music content in a sentence."],
+    ["./examples/mmau1.wav", "What specific sounds can be distinguished from the audio clip? (A) Helicopter and impact sounds  (B) Whistling and chatter (C) Car honking and raindrops (D) Birds chirping and water flowing"],
+]
+
+
+demo = gr.Blocks()
+with demo:
+    gr.HTML(HEADER)
+    gr.Interface(fn=predict,
+                    inputs=[gr.Audio(type="filepath"), gr.Textbox(value='Describe the audio.', label='Question')],
                     outputs=[gr.Textbox(label="Audio Flamingo 2 Output")],
                     cache_examples=True,
+                    examples=audio_examples,
                     title="Audio Flamingo 2 Demo",
-                    description="Audio Flamingo 2 is NVIDIA's latest Large Audio-Language Model that is capable of understanding audio inputs and answer any open-ended question about it." + f"<a href='{paper_link}'>{paper_text}</a> " + f"<a href='{link}'>{text}</a> <br>" +
+                    description="Audio Flamingo 2 is NVIDIA's latest Large Audio-Language Model that is capable of understanding audio inputs and answer any open-ended question about it. <br>" +
                     "**Audio Flamingo 2 is not an ASR model and has limited ability to recognize the speech content. It primarily focuses on perception and understanding of non-speech sounds and music.**<br>" +
-                    "The demo is hosted on the Stage 2 checkpoints and supports upto 90 seconds of audios. Stage 3 checkpoints that support upto 5 minutes will be released at a later points.")
+                    "The demo is hosted on the Stage 2 checkpoints and supports upto 90 seconds of audios. Stage 3 checkpoints that support upto 5 minutes will be released at a later point.")
 demo.launch(share=True)
