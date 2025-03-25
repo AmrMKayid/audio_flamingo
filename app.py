@@ -13,9 +13,10 @@ from pydub import AudioSegment
 from safetensors.torch import load_file
 from huggingface_hub import snapshot_download
 
-from data.data import get_audiotext_dataloader
-from src.factory import create_model_and_transforms
-from train.train_utils import Dict2Class, get_autocast, get_cast_dtype
+from audio_flamingo.data.data import get_audiotext_dataloader
+from audio_flamingo.src.factory import create_model_and_transforms
+from audio_flamingo.train.train_utils import Dict2Class, get_autocast, get_cast_dtype
+breakpoint()
 
 HEADER = ("""
 <div style="display: flex; justify-content: center; align-items: center; text-align: center;">
