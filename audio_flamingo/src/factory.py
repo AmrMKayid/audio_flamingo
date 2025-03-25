@@ -2,7 +2,7 @@ from typing import Optional
 from copy import deepcopy
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel, Wav2Vec2FeatureExtractor, WhisperFeatureExtractor, WhisperModel
-# from .modeling_whisper import WhisperModel
+# from audio_flamingo.src.modeling_whisper import WhisperModel
 from audio_flamingo.my_laion_clap.CLAP.src.laion_clap.clap_module.htsat import create_htsat_model
 
 import torch
@@ -13,14 +13,9 @@ from torch import nn
 import torchvision.transforms
 from contextlib import suppress
 
-try:
-    from .flamingo import Flamingo
-    from .flamingo_lm import FlamingoLMMixin
-    from .utils import extend_instance
-except:
-    from flamingo import Flamingo
-    from flamingo_lm import FlamingoLMMixin
-    from utils import extend_instance
+from audio_flamingo.src.flamingo import Flamingo
+from audio_flamingo.src.flamingo_lm import FlamingoLMMixin
+from audio_flamingo.src.utils import extend_instance
 
 def int16_to_float32(x):
     return (x / 32767.0).astype(np.float32)

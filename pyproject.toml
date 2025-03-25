@@ -11,6 +11,10 @@ authors = [
 description = "Audio Flamingo: A Multimodal Model for Audio-Visual Synchronization"
 keywords = ["deep-learning", "audio-visual", "synchronization"]
 readme = "README.md"
+dependencies = [
+    "h5py==3.13.0",
+    "einops-exts==0.0.4",
+]
 
 [project.urls]
 Homepage = "https://github.com/AmrMKayid/audio_flamingo"

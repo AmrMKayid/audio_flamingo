@@ -1,11 +1,7 @@
 import torch.nn as nn
 
-try:
-    from .helpers import GatedCrossAttentionBlock
-    from .utils import getattr_recursive, setattr_recursive
-except:
-    from helpers import GatedCrossAttentionBlock
-    from utils import getattr_recursive, setattr_recursive
+from audio_flamingo.src.helpers import GatedCrossAttentionBlock
+from audio_flamingo.src.utils import getattr_recursive, setattr_recursive
 
 
 class FlamingoLayer(nn.Module):
