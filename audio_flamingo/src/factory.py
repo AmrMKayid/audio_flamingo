@@ -5,7 +5,7 @@ from copy import deepcopy
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel, Wav2Vec2FeatureExtractor, WhisperFeatureExtractor, WhisperModel
 # from audio_flamingo.src.modeling_whisper import WhisperModel
 from audio_flamingo.my_laion_clap.CLAP.src.laion_clap.clap_module.htsat import create_htsat_model
-
+import yaml
 import torch
 import torchaudio
 import torchaudio.transforms as T
@@ -364,7 +364,7 @@ class MERT(nn.Module):
 def create_model_and_tokenizer_from_config(
     config_name: str = "inference",
 ):
-    config_path = Path(__file__).parent / "configs" / f"{config_name}.yaml"
+    config_path = Path(__file__).parent.parent / "configs" / f"{config_name}.yaml"
     with open(config_path) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
