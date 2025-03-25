@@ -380,7 +380,7 @@ def create_model_and_tokenizer_from_config(
         gradient_checkpointing=args.gradient_checkpointing,
         freeze_lm_embeddings=args.freeze_lm_embeddings,
     )
-    return model, tokenizer
+    return model, tokenizer, clap_config
 
 def create_model_and_transforms(
     clap_config: dict,
