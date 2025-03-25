@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 from copy import deepcopy
 
@@ -16,6 +17,9 @@ from contextlib import suppress
 from audio_flamingo.src.flamingo import Flamingo
 from audio_flamingo.src.flamingo_lm import FlamingoLMMixin
 from audio_flamingo.src.utils import extend_instance
+from audio_flamingo.train.train_utils import (
+    Dict2Class,
+)
 
 def int16_to_float32(x):
     return (x / 32767.0).astype(np.float32)
@@ -64,7 +68,7 @@ class CLAP(nn.Module):
         enable_fusion = True
         fusion_type = "aff_2d"
         self.nvclap = create_htsat_model(audio_cfg, enable_fusion, fusion_type)
-        clap_state_dict = torch.load(clap_config["checkpoint"], map_location = 'cpu')
+        clap_state_dict = torch.load(clap_config["checkpoint"], map_location = 'cpu', weights_only=False)
         clap_state_dict_copy = clap_state_dict['state_dict'].copy()
         for key in list(clap_state_dict['state_dict'].keys()):
             if 'audio' in key:
@@ -357,6 +361,26 @@ class MERT(nn.Module):
         return audio_embeds
 
 
+def create_model_and_tokenizer_from_config(
+    config_name: str = "inference",
+):
+    config_path = Path(__file__).parent / "configs" / f"{config_name}.yaml"
+    with open(config_path) as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+
+    data_config = config["data_config"]  # noqa
+    model_config = config["model_config"]
+    clap_config = config["clap_config"]
+    args = Dict2Class(config["train_config"])
+
+    model, tokenizer = create_model_and_transforms(
+        **model_config,
+        clap_config=clap_config,
+        use_local_files=args.offline,
+        gradient_checkpointing=args.gradient_checkpointing,
+        freeze_lm_embeddings=args.freeze_lm_embeddings,
+    )
+    return model, tokenizer
 
 def create_model_and_transforms(
     clap_config: dict,
